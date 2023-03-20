@@ -12,6 +12,12 @@ import * as strings from 'PropertiesPaneWebPartStrings';
 import PropertiesPane from './components/PropertiesPane';
 import { IPropertiesPaneProps } from './components/IPropertiesPaneProps';
 
+import { 
+  PropertyPaneContinentSelector,
+  IPropertyPaneContinentSelectorProps
+} from './controls';
+import { update } from 'lodash';
+
 export interface IPropertiesPaneWebPartProps {
   description: string;
   myContinent: string;
@@ -48,6 +54,11 @@ export default class PropertiesPaneWebPart extends BaseClientSideWebPart <IPrope
     return ( validateContinentsOptions.indexOf(inputToValidate) === -1 )
     ? 'invalid continent entry: valid option are "Africa", "Antartica", "Asia", "north america", "south america"'
     : ''
+  };
+
+  private onContinentSelectionChange(propertyPath: string, newValue: any): void {
+    update(this.properties, propertyPath, (): any => { return newValue });
+    this.render();
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -64,9 +75,15 @@ export default class PropertiesPaneWebPart extends BaseClientSideWebPart <IPrope
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
                 }),
-                PropertyPaneTextField('myContinent', {
+                // PropertyPaneTextField('myContinent', {
+                //   label: 'Continent where I currently reside',
+                //   onGetErrorMessage: this.validateContinents.bind(this)
+                // }),
+                new PropertyPaneContinentSelector('myContinent', <IPropertyPaneContinentSelectorProps>{
                   label: 'Continent where I currently reside',
-                  onGetErrorMessage: this.validateContinents.bind(this)
+                  disabled: false,
+                  selectedKey: this.properties.myContinent,
+                  onPropertyChange: this.onContinentSelectionChange.bind(this),
                 }),
                 PropertyPaneSlider('numContinentsVisited', {
                   label: 'Number of continent I have visited',
